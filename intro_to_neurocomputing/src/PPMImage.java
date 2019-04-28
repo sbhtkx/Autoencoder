@@ -1,11 +1,9 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PPMImage {
@@ -65,29 +63,23 @@ public class PPMImage {
 		}
 	}
 	
-	public void writeGrayScale(String filename) throws IOException{
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename)));
-		// write header
-		int rowdimension = height;
-		int columndimension = width;
-		writer.write("P3");
-		writer.newLine();
-		writer.write(width+" "+height);
-		writer.newLine();
-		System.out.println("|" + maxColorVal + "|");
-		writer.write(Integer.toString(maxColorVal));
-		writer.newLine();
-		for(int row=0;row<rowdimension;row++){
-			for(int column=0;column<columndimension;column++){
-				writer.write(grayScale[row][column]+" ");
-				writer.write(grayScale[row][column]+" ");
-				writer.write(grayScale[row][column]+"");
-				if(column < columndimension - 1)writer.write(" ");
-			}
-			writer.newLine();
+	
+	
+	
+	public GrayScaleImage getSubImageGrey(int i, int j, int width, int height){
+		if (i + height >= this.height) {
+			i = height - i;
 		}
-		writer.flush();
-		writer.close();
+		if (j + width >= this.width) {
+			j = j - width;
+		}
+		
+		int[][] ans = new int[height][width];
+		for (int k = i, l = 0; k < i + height; k++, l++) {
+//			System.out.println("k: " + k, );
+			ans[l] = Arrays.copyOfRange(grayScale[k], j, j + width);
+		}
+		return new GrayScaleImage(ans, maxColorVal);
 	}
 
 
@@ -99,13 +91,18 @@ public class PPMImage {
 			System.out.println(p.height);
 			System.out.println(p.width);
 			System.out.println(p.maxColorVal);
-			p.writeGrayScale("C:\\Users\\sbhtk\\git_clones\\ppm-converter\\lena_grayScale.ppm");
+			GrayScaleImage window = p.getSubImageGrey(0, 0, 400, 400);
+			window.writeGrayScale("C:\\Users\\sbhtk\\git_clones\\ppm-converter\\window.ppm");
 			System.out.println("fin");
 		}catch (Exception e) {
-			System.out.println("error...");
+//			System.out.println("error...");
 			e.printStackTrace();
 		}
 
 	}
+	
+	
+	
 
 }
+
