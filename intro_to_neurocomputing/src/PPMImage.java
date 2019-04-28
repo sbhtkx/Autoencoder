@@ -5,17 +5,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class PPMImage {
 
 	String magicNumber; // A "magic number" for identifying the file type
-	int width; // Width of the image
-	int height; // Height of the image
-	int maxColorVal; // Maximum color value
-	int[][][] rgb;
-	int[][] grayScale;
-	//    char *threeChan; // A series of rows and columns (raster) that stores important binary image data
-
+	int width;  // Width of the image
+	int height;  // Height of the image
+	int maxColorVal;  // Maximum color value
+	int[][][] rgb;  // matrix that contains the RGB value for each pixel 
+	int[][] grayScale;  // matrix that contains the gray value for each pixel
+	
+	boolean [] i_stock, j_stock;  // to remember which indexes we already used in our training if we want
+	int is_left, js_left;
 
 	public PPMImage(String fileName) throws IOException{
 
@@ -63,15 +65,15 @@ public class PPMImage {
 		}
 	}
 	
-	
-	
-	
 	public GrayScaleImage getSubImageGrey(int i, int j, int width, int height){
 		if (i + height >= this.height) {
-			i = height - i;
+			i = this.height - height;
 		}
 		if (j + width >= this.width) {
-			j = j - width;
+			System.out.println("j1: " + j);
+			j = this.width - width;
+			System.out.println("width: " + width);
+			System.out.println("j2: " + j);
 		}
 		
 		int[][] ans = new int[height][width];
@@ -81,18 +83,46 @@ public class PPMImage {
 		}
 		return new GrayScaleImage(ans, maxColorVal);
 	}
+	
+	public GrayScaleImage getRandomWindow(int width, int height) {
+		if(is_left <= 0 || js_left <= 0) {
+			i_stock = new boolean [this.height];
+			j_stock = new boolean [this.width];
+			is_left = this.height;
+			js_left = this.width;
+		}
+
+		Random rand = new Random();
+		int i, j;
+		do {
+			i = rand.nextInt(this.height);
+		} while (i_stock[i] == false);
+		
+		do {
+		j = rand.nextInt(this.width);
+		} while (j_stock[j] == false);
+		
+		i_stock[i] = true;
+		j_stock[j] = true;
+		is_left--;
+		js_left--;
+				
+		return getSubImageGrey(i, j , width, height);
+	}
 
 
 
 	public static void main(String[] args) {
+		boolean[] bbb = new boolean[10];
+		System.out.println(Arrays.toString(bbb));
 		try{
-			PPMImage p = new PPMImage("C:\\Users\\sbhtk\\git_clones\\ppm-converter\\lena_gray_p3.ppm");
+			PPMImage p = new PPMImage("images\\lena_gray_p3.ppm");
 			System.out.println(p.magicNumber);
 			System.out.println(p.height);
 			System.out.println(p.width);
 			System.out.println(p.maxColorVal);
-			GrayScaleImage window = p.getSubImageGrey(0, 0, 400, 400);
-			window.writeGrayScale("C:\\Users\\sbhtk\\git_clones\\ppm-converter\\window.ppm");
+			GrayScaleImage window = p.getSubImageGrey(400, 400, 200, 200);
+			window.writeGrayScale("images\\window.ppm");
 			System.out.println("fin");
 		}catch (Exception e) {
 //			System.out.println("error...");
