@@ -1,6 +1,6 @@
 
 public class Node {
-	final static double ALFA = 0.1;
+	final static double ALFA = 0.02;
 	double output, error;
 	Node[] input;
 	double[] inputWeights;
