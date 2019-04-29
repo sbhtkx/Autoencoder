@@ -8,7 +8,9 @@ public class Net {
 		thirdLayer = new Node[num];
 		for (int i = 0; i < num; i++) {
 			firstLayer[i] = new Node();
-			secondLayer[i] = new Node(firstLayer);
+			if(i < num / 2 + 1) {
+				secondLayer[i] = new Node(firstLayer);
+			}
 			thirdLayer[i] = new Node(secondLayer);
 		}
 	}
@@ -21,15 +23,15 @@ public class Net {
 				e.printStackTrace();
 			}
 		}
-		
+
 		for (int i = 0; i < input.length; i++) {
 			firstLayer[i].input(input[i]);
 		}
-		
-		for (int i = 0; i < input.length; i++) {
+
+		for (int i = 0; i < input.length / 2 + 1; i++) {
 			secondLayer[i].calculateOutput();
 		}
-		
+
 		for (int i = 0; i < input.length; i++) {
 			thirdLayer[i].calculateOutput();
 		}
@@ -42,12 +44,26 @@ public class Net {
 				if(input[i] == 1)
 					thirdLayer[i].calculateErrorAndUpdate(0.5 - thirdLayer[i].output);
 			}
-			
+
 		}
-		
-		for (int i = 0; i < input.length; i++) {
+
+		for (int i = 0; i < input.length / 2 + 1; i++) {
 			secondLayer[i].calculateErrorAndUpdate(0);
 		}
 
+	}
+	
+	public static void main(String[] args) {
+		try {
+		PPMImage p = new PPMImage("images\\lena_gray_p3.ppm");
+		Net network = new Net(256);
+		for (int i = 0; i < p.height * p.width * 0.5; i++) {
+			network.train(p.getNextRandomWindow(16, 16));
+		}
+		
+		System.out.println("fin");
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

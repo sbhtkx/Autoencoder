@@ -19,6 +19,27 @@ public class GrayScaleImage{
 		}
 	}
 	
+	public GrayScaleImage(int[] grayValues, int height, int width, int maxColorVal) {
+		this.height = height;
+		this.width = width;
+		this.maxColorVal = maxColorVal;
+		for (int i = 0; i < grayValues.length; i++) {
+			this.grayValues[i/width][i%width] = grayValues[i];
+		}
+	}
+	
+	public int[] asArray() {
+		int[] ans = new int[grayValues.length * grayValues[0].length];
+		
+		for (int i = 0; i < grayValues.length; i++) {
+			for (int j = 0; j < grayValues[i].length; j++) {
+				ans[i+j] = grayValues[i][j];
+			}
+		}
+		
+		return ans;
+	}
+	
 	public void writeGrayScale(String filename) throws IOException{
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename)));
 		// write header

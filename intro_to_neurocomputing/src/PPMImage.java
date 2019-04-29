@@ -15,9 +15,9 @@ public class PPMImage {
 	int maxColorVal;  // Maximum color value
 	int[][][] rgb;  // matrix that contains the RGB value for each pixel 
 	int[][] grayScale;  // matrix that contains the gray value for each pixel
-	
+
 	boolean [] i_stock, j_stock;  // to remember which indexes we already used in our training if we want
-	int is_left, js_left;
+	int i_left, j_left;
 
 	public PPMImage(String fileName) throws IOException{
 
@@ -61,10 +61,10 @@ public class PPMImage {
 			for (int j = 0; j < rgb[0].length; j++) {
 				grayScale[i][j]  = (int)( (rgb[i][j][0] * 0.299) + (rgb[i][j][1] * 0.587) + (rgb[i][j][2] * 0.114));
 			}
-			
+
 		}
 	}
-	
+
 	public GrayScaleImage getSubImageGrey(int i, int j, int width, int height){
 		if (i + height >= this.height) {
 			i = this.height - height;
@@ -75,39 +75,41 @@ public class PPMImage {
 			System.out.println("width: " + width);
 			System.out.println("j2: " + j);
 		}
-		
+
 		int[][] ans = new int[height][width];
 		for (int k = i, l = 0; k < i + height; k++, l++) {
-//			System.out.println("k: " + k, );
 			ans[l] = Arrays.copyOfRange(grayScale[k], j, j + width);
 		}
 		return new GrayScaleImage(ans, maxColorVal);
 	}
-	
-	public GrayScaleImage getRandomWindow(int width, int height) {
-		if(is_left <= 0 || js_left <= 0) {
-			i_stock = new boolean [this.height];
-			j_stock = new boolean [this.width];
-			is_left = this.height;
-			js_left = this.width;
+
+	/**
+	 * do not change the <code>width and <code>height during training!	
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public int[] getNextRandomWindow(int width, int height) {
+		if(i_left <= 0 || j_left <= 0) {
+			i_stock = new boolean [this.height - height];
+			j_stock = new boolean [this.width - width];
+			i_left = this.height;
+			j_left = this.width;
 		}
 
 		Random rand = new Random();
 		int i, j;
 		do {
-			i = rand.nextInt(this.height);
-		} while (i_stock[i] == false);
-		
-		do {
-		j = rand.nextInt(this.width);
-		} while (j_stock[j] == false);
-		
+			i = rand.nextInt(this.height - height);
+			j = rand.nextInt(this.width - width);
+		} while (i_stock[i] == true && j_stock[j] == true);
+
 		i_stock[i] = true;
 		j_stock[j] = true;
-		is_left--;
-		js_left--;
-				
-		return getSubImageGrey(i, j , width, height);
+		i_left--;
+		j_left--;
+		System.out.println("i: " + i + ", j: " + j);
+		return getSubImageGrey(i, j , width, height).asArray();
 	}
 
 
@@ -125,14 +127,14 @@ public class PPMImage {
 			window.writeGrayScale("images\\window.ppm");
 			System.out.println("fin");
 		}catch (Exception e) {
-//			System.out.println("error...");
+			//			System.out.println("error...");
 			e.printStackTrace();
 		}
 
 	}
-	
-	
-	
+
+
+
 
 }
 
