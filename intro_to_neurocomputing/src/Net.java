@@ -14,7 +14,7 @@ public class Net {
 		}
 	}
 
-	public void train(int[] input) {
+	public int[] train(int[] input) {
 		if (input.length != firstLayer.length) {
 			try {
 				throw new Exception("wrong input length");
@@ -22,19 +22,8 @@ public class Net {
 				e.printStackTrace();
 			}
 		}
-
-		for (int i = 0; i < input.length; i++) {
-			firstLayer[i].input(input[i]);
-		}
-
-		for (int i = 0; i < input.length / 2 + 1; i++) {
-			secondLayer[i].calculateOutput();
-		}
-
-		for (int i = 0; i < input.length; i++) {
-			thirdLayer[i].calculateOutput();
-		}
-
+		int[] output = test(input);
+		
 		for (int i = 0; i < input.length; i++) {
 			if (thirdLayer[i].output > 0.5) {
 				if (input[i] == 0)
@@ -49,6 +38,25 @@ public class Net {
 		for (int i = 0; i < input.length / 2 + 1; i++) {
 			secondLayer[i].calculateErrorAndUpdate(0);
 		}
+		return output;
 
+	}
+	public int[] test(int[] input){
+		for (int i = 0; i < input.length; i++) {
+			firstLayer[i].input(input[i]);
+		}
+
+		for (int i = 0; i < input.length / 2 + 1; i++) {
+			secondLayer[i].calculateOutput();
+		}
+
+		for (int i = 0; i < input.length; i++) {
+			thirdLayer[i].calculateOutput();
+		}
+		int[] ans = new int[input.length];
+		for (int i = 0; i < ans.length; i++) {
+			ans[i]=(int)(thirdLayer[i].output+0.5);
+		}
+		return ans;
 	}
 }
