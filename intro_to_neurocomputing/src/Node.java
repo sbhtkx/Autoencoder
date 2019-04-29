@@ -22,7 +22,7 @@ public class Node {
 		this.input = input;
 		inputWeights = new double[input.length];
 		for (int i = 0; i < input.length; i++) {
-			inputWeights[i] = Math.random();
+			inputWeights[i] = 8*Math.random()-4;
 		}
 	}
 
