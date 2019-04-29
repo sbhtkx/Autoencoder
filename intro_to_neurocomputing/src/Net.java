@@ -10,7 +10,6 @@ public class Net {
 			firstLayer[i] = new Node();
 			if (i < num / 2 + 1)
 				secondLayer[i] = new Node(firstLayer);
-
 			thirdLayer[i] = new Node(secondLayer);
 		}
 	}
@@ -25,7 +24,6 @@ public class Net {
 		}
 		int[] output = test(input);
 		
-
 		for (int i = 0; i < input.length; i++) {
 			if (thirdLayer[i].output > 0.5) {
 				if (input[i] == 0)
@@ -44,7 +42,6 @@ public class Net {
 
 	}
 	public int[] test(int[] input){
-
 		for (int i = 0; i < input.length; i++) {
 			firstLayer[i].input(input[i]);
 		}
@@ -61,19 +58,5 @@ public class Net {
 			ans[i]=(int)(thirdLayer[i].output+0.5);
 		}
 		return ans;
-	}
-	
-	public static void main(String[] args) {
-		try {
-		PPMImage p = new PPMImage("images\\lena_gray_p3.ppm");
-		Net network = new Net(256);
-		for (int i = 0; i < p.height * p.width * 0.5; i++) {
-			network.train(p.getNextRandomWindow(16, 16));
-		}
-		
-		System.out.println("fin");
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }
