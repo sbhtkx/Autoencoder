@@ -94,11 +94,11 @@ public class PPMImage {
 		Random rand = new Random();
 		int i, j;
 		do {
-			i = rand.nextInt(this.height);
+			i = rand.nextInt(this.height - height);
 		} while (i_stock[i] == true);
 		
 		do {
-		j = rand.nextInt(this.width);
+		j = rand.nextInt(this.width - width);
 		} while (j_stock[j] == true);
 		
 		i_stock[i] = true;
