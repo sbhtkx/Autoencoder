@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PPMImage {
 
@@ -16,8 +18,10 @@ public class PPMImage {
 	int[][][] rgb;  // matrix that contains the RGB value for each pixel 
 	int[][] grayScale;  // matrix that contains the gray value for each pixel
 	
-	boolean [] i_stock, j_stock;  // to remember which indexes we already used in our training if we want
-	int is_left, js_left;
+	Stack<Integer> i_stack_train, j_stack_train;  // to remember which indexes we already used in our training if we want
+	int trainSetSize = 100, testSetSize = 50;
+	private Stack<Integer> i_stack_test;
+	private Stack<Integer> j_stack_test;
 
 	public PPMImage(String fileName) throws IOException{
 
@@ -78,61 +82,68 @@ public class PPMImage {
 		
 		int[][] ans = new int[height][width];
 		for (int k = i, l = 0; k < i + height; k++, l++) {
-//			System.out.println("k: " + k, );
 			ans[l] = Arrays.copyOfRange(grayScale[k], j, j + width);
 		}
 		return new GrayScaleImage(ans, maxColorVal);
 	}
 	
-	public GrayScaleImage getRandomWindow(int width, int height) {
-		if(is_left <= 0 || js_left <= 0) {
-			i_stock = new boolean [this.height];
-			j_stock = new boolean [this.width];
-			is_left = this.height;
-			js_left = this.width;
+	public double[] getNextRandomWindowTrain(int width, int height) {
+		if(i_stack_train == null || j_stack_train == null || i_stack_train.isEmpty() || j_stack_train.isEmpty()) {
+			resetRandom(trainSetSize, testSetSize, width, height);
 		}
-
-		Random rand = new Random();
-		int i, j;
-		do {
-			i = rand.nextInt(this.height);
-		} while (i_stock[i] == false);
-		
-		do {
-		j = rand.nextInt(this.width);
-		} while (j_stock[j] == false);
-		
-		i_stock[i] = true;
-		j_stock[j] = true;
-		is_left--;
-		js_left--;
-				
-		return getSubImageGrey(i, j , width, height);
-	}
-
-
-
-	public static void main(String[] args) {
-		boolean[] bbb = new boolean[10];
-		System.out.println(Arrays.toString(bbb));
-		try{
-			PPMImage p = new PPMImage("images\\lena_gray_p3.ppm");
-			System.out.println(p.magicNumber);
-			System.out.println(p.height);
-			System.out.println(p.width);
-			System.out.println(p.maxColorVal);
-			GrayScaleImage window = p.getSubImageGrey(400, 400, 200, 200);
-			window.writeGrayScale("images\\window.ppm");
-			System.out.println("fin");
-		}catch (Exception e) {
-//			System.out.println("error...");
-			e.printStackTrace();
-		}
-
+		return getSubImageGrey(i_stack_train.pop(), j_stack_train.pop() , width, height).asArray();
 	}
 	
-	
-	
+	public double[] getNextRandomWindowTest(int width, int height) {
+		if(i_stack_train == null || j_stack_train == null || i_stack_train.isEmpty() || j_stack_train.isEmpty()) {
+			resetRandom(trainSetSize, testSetSize, width, height);
+		}
+		return getSubImageGrey(i_stack_test.pop(), j_stack_test.pop() , width, height).asArray();
+	}
 
+	private void resetRandom(int trainSetSize, int testSetSize, int width, int height) {
+		int[] i_arr = new int[this.height - height];
+		int[] j_arr = new int[this.width - width];
+		
+		for (int i = 0; i < i_arr.length; i++) {
+			i_arr[i] = i;
+		}
+		for (int j = 0; j < j_arr.length; j++) {
+			j_arr[j] = j;
+		}
+		shuffleArray(i_arr);
+		shuffleArray(j_arr);
+		
+		i_stack_train = new Stack<>();
+		i_stack_test = new Stack<>();
+		for (int i = 0; i < i_arr.length && i < trainSetSize + testSetSize; i++) {
+			if(i < trainSetSize)
+				i_stack_train.push(i_arr[i]);
+			else
+				i_stack_test.push(i_arr[i]);
+		}
+		j_stack_train = new Stack<>();
+		j_stack_test = new Stack<>();
+		for (int j = 0; j < j_arr.length && j < trainSetSize + testSetSize; j++) {
+			if(j < trainSetSize)
+				j_stack_train.push(j_arr[j]);
+			else
+				j_stack_test.push(j_arr[j]);
+		}
+		
+	}
+	
+	static void shuffleArray(int[] ar){
+	    Random rnd = ThreadLocalRandom.current();
+	    for (int i = ar.length - 1; i > 0; i--)
+	    {
+	      int index = rnd.nextInt(i + 1);
+	      // Simple swap
+	      int a = ar[index];
+	      ar[index] = ar[i];
+	      ar[i] = a;
+	    }
+	  }
+	
 }
 
