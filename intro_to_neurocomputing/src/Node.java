@@ -26,7 +26,7 @@ public class Node {
 		}
 	}
 
-	public void input(int in) {
+	public void input(double in) {
 		output = in;
 	}
 
@@ -39,10 +39,16 @@ public class Node {
 	}
 
 	private double sigmoid(double sum) {
-		return 1 / (1 + Math.pow(Math.E, -sum));
+		return 1 / (1 + Math.exp(-sum));
 	}
 
 	public void calculateErrorAndUpdate(double err) {
+		if(err !=0&&error!=0)
+			try {
+				throw new Exception("wrong programming");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		error += err;
 		double myDelta = err * output * (1 - output);
 		for (int i = 0; i < inputWeights.length; i++) {
