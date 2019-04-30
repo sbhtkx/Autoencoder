@@ -17,7 +17,7 @@ public class PPMImage {
 	int[][] grayScale;  // matrix that contains the gray value for each pixel
 	
 	boolean [] i_stock, j_stock;  // to remember which indexes we already used in our training if we want
-	int is_left, js_left;
+	int i_left, j_left;
 
 	public PPMImage(String fileName) throws IOException{
 
@@ -78,39 +78,36 @@ public class PPMImage {
 		
 		int[][] ans = new int[height][width];
 		for (int k = i, l = 0; k < i + height; k++, l++) {
-//			System.out.println("k: " + k, );
 			ans[l] = Arrays.copyOfRange(grayScale[k], j, j + width);
 		}
 		return new GrayScaleImage(ans, maxColorVal);
 	}
 	
-	public GrayScaleImage getRandomWindow(int width, int height) {
-		if(is_left <= 0 || js_left <= 0) {
-			i_stock = new boolean [this.height];
-			j_stock = new boolean [this.width];
-			is_left = this.height;
-			js_left = this.width;
+	public int[] getNextRandomWindow(int width, int height) {
+		if(i_left <= 0 || j_left <= 0) {
+			i_stock = new boolean [this.height - height];
+			j_stock = new boolean [this.width - width];
+			i_left = this.height;
+			j_left = this.width;
 		}
 
 		Random rand = new Random();
 		int i, j;
 		do {
 			i = rand.nextInt(this.height);
-		} while (i_stock[i] == false);
+		} while (i_stock[i] == true);
 		
 		do {
 		j = rand.nextInt(this.width);
-		} while (j_stock[j] == false);
+		} while (j_stock[j] == true);
 		
 		i_stock[i] = true;
 		j_stock[j] = true;
-		is_left--;
-		js_left--;
+		i_left--;
+		j_left--;
 				
-		return getSubImageGrey(i, j , width, height);
+		return getSubImageGrey(i, j , width, height).asArray();
 	}
-
-
 
 	public static void main(String[] args) {
 		boolean[] bbb = new boolean[10];
@@ -130,9 +127,6 @@ public class PPMImage {
 		}
 
 	}
-	
-	
-	
 
 }
 
