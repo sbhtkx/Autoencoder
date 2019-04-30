@@ -42,5 +42,16 @@ public class GrayScaleImage{
 		writer.flush();
 		writer.close();
 	}
+
+	public int[] asArray() {
+		
+		int ans[] = new int[grayValues.length*grayValues[0].length];
+	    for(int i = 0; i < grayValues.length; i++) {
+	        for(int j = 0; j < grayValues[i].length; j++) {
+	        	ans[i*grayValues[i].length+j] = grayValues[i][j];
+	        }
+	    }
+		return ans;
+	}
 	
 }
