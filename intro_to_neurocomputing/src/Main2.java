@@ -1,9 +1,10 @@
 
 public class Main2 {
 	static final int size = 32;
-	static final int trainSetSize = 50000;
-	static final int numberOfIterations = trainSetSize * 1000;
-	static final int printImageIteration = trainSetSize * 100;
+	static final int trainSetSize = 512 * 512 / 32;
+	static final int numberOfIterations = trainSetSize * 100;
+	static final int printImageIteration = trainSetSize * 10;
+	
 	public static void main(String[] args) {
 		
 		try {
@@ -31,7 +32,6 @@ public class Main2 {
 							}
 							else {
 								g.append(g2, 512);
-								System.out.println("g.height: " + g.height + ", g.width: " + g.width);
 							}
 						}
 					}
@@ -55,7 +55,6 @@ public class Main2 {
 					}
 					else {
 						g.append(g2, 512);
-						System.out.println("g.height: " + g.height + ", g.width: " + g.width);
 					}
 				}
 			}

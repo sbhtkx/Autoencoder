@@ -2,6 +2,7 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 
 public class GrayScaleImage{
 	int[][] grayValues;
@@ -49,11 +50,8 @@ public class GrayScaleImage{
 		writer.newLine();
 		writer.write(Integer.toString(maxColorVal));
 		writer.newLine();
-		System.out.println("rowdimension: " + rowdimension);
-		System.out.println("columndimension: " +columndimension);
 		for(int row=0;row<rowdimension;row++){
 			for(int column=0;column<columndimension;column++){
-				//				System.out.println("row: " + row + ", column: " + column);
 				writer.write(grayValues[row][column]+" ");
 				writer.write(grayValues[row][column]+" ");
 				writer.write(grayValues[row][column]+"");
@@ -88,24 +86,26 @@ public class GrayScaleImage{
 		return (int) (n * 256);
 	}
 
+
 	public void append(GrayScaleImage other, int width) {
 		// find an empty cell (that contains '-1')
 		int startI = -1, startJ = -1;
-		outerloop:
-			for (int i = 0; i < grayValues.length; i++) {
-				for (int j = 0; j < grayValues[i].length; j++) {
-					if (grayValues[i][j] == -1) {
-						startI = i;
-						startJ = j;
-						if(startI + other.width <= this.width && startJ + other.height <= this.height) {
-							break outerloop;
-						}
+		boolean flag = true;
+		for (int i = 0; i < grayValues.length && flag; i++) {
+			for (int j = 0; j < grayValues[i].length && flag; j++) {
+				if (grayValues[i][j] == -1) {
+					startI = i;
+					startJ = j;
+					if(startJ + other.width <= this.width && startI + other.height <= this.height) {
+						flag = false;
+					}
+					else {
 					}
 				}
 			}
-		System.out.println("startI: " + startI + ", startJ: " + startJ);
+		}
 		// case 1: there is enough empty space
-		if(startI != -1 && startI + other.width <= this.width && startJ + other.height <= this.height) {
+		if(startI != -1 && startJ + other.width <= this.width && startI + other.height <= this.height) {
 			for (int i = 0; i < other.grayValues.length; i++) {
 				for (int j = 0; j < other.grayValues[i].length; j++) {
 					grayValues[startI + i][startJ + j] = other.grayValues[i][j];
@@ -183,6 +183,8 @@ public class GrayScaleImage{
 
 		}
 	}
+
+
 
 	//	}
 
