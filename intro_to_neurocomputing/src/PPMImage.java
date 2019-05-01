@@ -26,8 +26,10 @@ public class PPMImage {
 	private int[] i_arr;
 	private int[] j_arr;
 
-	public PPMImage(String fileName) throws IOException{
-
+	public PPMImage(String fileName, int trainSetSize) throws IOException{
+		
+		this.trainSetSize = trainSetSize;
+		
 		File file = new File(fileName);     	  
 		BufferedReader br = new BufferedReader(new FileReader(file));
 

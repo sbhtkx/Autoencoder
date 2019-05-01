@@ -1,14 +1,17 @@
 
 public class Main2 {
 	static final int size = 32;
+	static final int trainSetSize = 50000;
+	static final int numberOfIterations = trainSetSize * 1000;
+	static final int printImageIteration = trainSetSize * 100;
 	public static void main(String[] args) {
 		
 		try {
-			PPMImage p = new PPMImage("images\\lena_gray_p3.ppm");
+			PPMImage p = new PPMImage("images\\lena_gray_p3.ppm", trainSetSize);
 			Net network = new Net(size * size);
 			System.out.println("start training.");
-			for (int i = 0; i < 50000 * 100; i++) {
-				if((i+1)%10000==0) {
+			for (int i = 0; i < numberOfIterations; i++) {
+				if((i+1) % printImageIteration == 0) {
 					System.out.println("round " + (i+1));
 				}
 				double[] arr = p.getNextRandomWindowTrain(size, size);
