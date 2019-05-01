@@ -2,12 +2,11 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
 
 public class GrayScaleImage{
 	int[][] grayValues;
-	int height, width, maxColorVal;
-	
+	int height, width, maxColorVal = 256;
+
 	public GrayScaleImage(int [][] grayValues, int maxColorVal) {
 		this.maxColorVal = maxColorVal;
 		height = grayValues.length;
@@ -19,12 +18,12 @@ public class GrayScaleImage{
 			}
 		}
 	}
-	
-	public GrayScaleImage(int[] grayValuesBits, int width) {
-		int[] grayValuesArr = new int[grayValuesBits.length/8];
-		for (int i = 0; i < grayValuesBits.length; i += 8) {
-			int v = bitsArrayToInt(Arrays.copyOfRange(grayValuesBits, i, i + 8));
-			grayValuesArr[i/8] = v;
+
+	public GrayScaleImage(double[] grayValuesArrNormalized, int width) {
+		int[] grayValuesArr = new int[grayValuesArrNormalized.length];
+		for (int i = 0; i < grayValuesArrNormalized.length; i ++) {
+			int v = normalizedToGrayScale(grayValuesArrNormalized[i]);
+			grayValuesArr[i] = v;
 		}
 		grayValues = new int[grayValuesArr.length/width][width];
 		int max = 0;
@@ -34,19 +33,11 @@ public class GrayScaleImage{
 			}
 			grayValues[i/width][i%width] = grayValuesArr[i];
 		}
-		maxColorVal = max;
+		//		maxColorVal = max;
 		this.width = width;
-		this.height = grayValuesArr.length / 16;
+		this.height = grayValuesArr.length / width;
 	}
-	
-	private int bitsArrayToInt(int[] arr) {
-		int ans = 0;
-		for (int i = 0; i < arr.length; i++) {
-			ans += Math.pow(2, i);
-		}
-		return ans;
-	}
-	
+
 	public void writeGrayScale(String filename) throws IOException{
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename)));
 		// write header
@@ -62,7 +53,7 @@ public class GrayScaleImage{
 		System.out.println("columndimension: " +columndimension);
 		for(int row=0;row<rowdimension;row++){
 			for(int column=0;column<columndimension;column++){
-//				System.out.println("row: " + row + ", column: " + column);
+				//				System.out.println("row: " + row + ", column: " + column);
 				writer.write(grayValues[row][column]+" ");
 				writer.write(grayValues[row][column]+" ");
 				writer.write(grayValues[row][column]+"");
@@ -76,24 +67,123 @@ public class GrayScaleImage{
 
 	/**
 	 * 
-	 * @return the matrix flattened to array and each number is expanded to eight 1-0 bits
+	 * @return the matrix flattened to array and each number is normalaized
 	 */
 	public double[] asArray() {
-		System.out.println();
-		double ans[] = new double[grayValues.length *grayValues[0].length*8];
-	    for(int i = 0; i < grayValues.length; i++) {
-	        for(int j = 0; j < grayValues[i].length; j++) {
-	        	int number = grayValues[i][j];
-	        	ans[i*grayValues[i].length+j] = normalize(number);
-	        }
-	    }
+		double ans[] = new double[grayValues.length *grayValues[0].length];
+		for(int i = 0; i < grayValues.length; i++) {
+			for(int j = 0; j < grayValues[i].length; j++) {
+				int number = grayValues[i][j];
+				ans[i*grayValues[i].length+j] = normalize(number);
+			}
+		}
 		return ans;
 	}
 
-	public static double normalize(int number) {
-		// TODO Auto-generated method stub
-		
-		return number / 256;
+	public static double normalize(int number) {		
+		return (double)number / 256;
 	}
-	
+
+	private int normalizedToGrayScale(double n) {
+		return (int) (n * 256);
+	}
+
+	public void append(GrayScaleImage other, int width) {
+		// find an empty cell (that contains '-1')
+		int startI = -1, startJ = -1;
+		outerloop:
+			for (int i = 0; i < grayValues.length; i++) {
+				for (int j = 0; j < grayValues[i].length; j++) {
+					if (grayValues[i][j] == -1) {
+						startI = i;
+						startJ = j;
+						if(startI + other.width <= this.width && startJ + other.height <= this.height) {
+							break outerloop;
+						}
+					}
+				}
+			}
+		System.out.println("startI: " + startI + ", startJ: " + startJ);
+		// case 1: there is enough empty space
+		if(startI != -1 && startI + other.width <= this.width && startJ + other.height <= this.height) {
+			for (int i = 0; i < other.grayValues.length; i++) {
+				for (int j = 0; j < other.grayValues[i].length; j++) {
+					grayValues[startI + i][startJ + j] = other.grayValues[i][j];
+				}
+			}
+		}
+		// case 2: need to expand the matrix horizontally
+		else if (this.width + other.width <= width) {
+			int[][] newGrayValues = new int[this.height][width];
+			// marking all the not yet updated cells with '-1'
+			for (int i = 0; i < newGrayValues.length; i++) {
+				for (int j = 0; j < newGrayValues[i].length; j++) {
+					newGrayValues[i][j] = -1;
+				}
+			}
+			// copy to the new matrix
+			for (int i = 0; i < grayValues.length; i++) {
+				for (int j = 0; j < grayValues[i].length; j++) {
+					newGrayValues[i][j] = grayValues[i][j];
+				}
+			}
+			// add the new pixels
+			for (int i = 0; i < other.grayValues.length; i++) {
+				for (int j = 0; j < other.grayValues[i].length; j++) {
+					newGrayValues[i][this.width+j] = other.grayValues[i][j];
+				}
+			}
+			grayValues = newGrayValues;
+			this.width = grayValues[0].length;
+		}
+		// case 3: need to expand the matrix vertically
+		else {
+			int[][] newGrayValues = new int[this.height + other.height][width];
+			// marking all the not yet updated cells with '-1'
+			for (int i = 0; i < newGrayValues.length; i++) {
+				for (int j = 0; j < newGrayValues[i].length; j++) {
+					newGrayValues[i][j] = -1;
+				}
+			}
+			// copy to the new matrix
+			for (int i = 0; i < grayValues.length; i++) {
+				for (int j = 0; j < grayValues[i].length; j++) {
+					newGrayValues[i][j] = grayValues[i][j];
+				}
+			}
+			// add the new pixels
+			for (int i = 0; i < other.grayValues.length; i++) {
+				for (int j = 0; j < other.grayValues[i].length; j++) {
+					newGrayValues[this.height+i][j] = other.grayValues[i][j];
+				}
+			}
+			grayValues = newGrayValues;
+			this.height = grayValues.length;
+		}
+
+
+
+
+
+
+
+
+
+		// case 2: find a cell with '-1' and add there the image
+		//		else {
+
+		if(startI != -1 && startI + other.width < this.width && startJ + other.height < -99999) {
+			for (int i = 0; i < other.grayValues.length; i++) {
+				for (int j = 0; j < other.grayValues[i].length; j++) {
+					grayValues[startI + i][startJ + j] = other.grayValues[i][j];
+				}
+			}
+		}
+		else {
+
+		}
+	}
+
+	//	}
+
 }

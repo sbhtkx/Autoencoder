@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
@@ -19,9 +20,11 @@ public class PPMImage {
 	int[][] grayScale;  // matrix that contains the gray value for each pixel
 	
 	Stack<Integer> i_stack_train, j_stack_train;  // to remember which indexes we already used in our training if we want
-	int trainSetSize = 100, testSetSize = 50;
+	int trainSetSize = 50000, testSetSize = 0;
 	private Stack<Integer> i_stack_test;
 	private Stack<Integer> j_stack_test;
+	private int[] i_arr;
+	private int[] j_arr;
 
 	public PPMImage(String fileName) throws IOException{
 
@@ -74,10 +77,7 @@ public class PPMImage {
 			i = this.height - height;
 		}
 		if (j + width >= this.width) {
-			System.out.println("j1: " + j);
 			j = this.width - width;
-			System.out.println("width: " + width);
-			System.out.println("j2: " + j);
 		}
 		
 		int[][] ans = new int[height][width];
@@ -88,22 +88,25 @@ public class PPMImage {
 	}
 	
 	public double[] getNextRandomWindowTrain(int width, int height) {
-		if(i_stack_train == null || j_stack_train == null || i_stack_train.isEmpty() || j_stack_train.isEmpty()) {
-			resetRandom(trainSetSize, testSetSize, width, height);
+		if(i_stack_train == null || j_stack_train == null) {
+			resetRandom(width, height);
+		}
+		if(i_stack_train.isEmpty() || j_stack_train.isEmpty()) {
+			recycleRandom();
 		}
 		return getSubImageGrey(i_stack_train.pop(), j_stack_train.pop() , width, height).asArray();
 	}
 	
 	public double[] getNextRandomWindowTest(int width, int height) {
 		if(i_stack_train == null || j_stack_train == null || i_stack_train.isEmpty() || j_stack_train.isEmpty()) {
-			resetRandom(trainSetSize, testSetSize, width, height);
+			resetRandom(width, height);
 		}
 		return getSubImageGrey(i_stack_test.pop(), j_stack_test.pop() , width, height).asArray();
 	}
 
-	private void resetRandom(int trainSetSize, int testSetSize, int width, int height) {
-		int[] i_arr = new int[this.height - height];
-		int[] j_arr = new int[this.width - width];
+	private void resetRandom(int width, int height) {
+		i_arr = new int[this.height - height];
+		j_arr = new int[this.width - width];
 		
 		for (int i = 0; i < i_arr.length; i++) {
 			i_arr[i] = i;
@@ -132,6 +135,31 @@ public class PPMImage {
 		}
 		
 	}
+	
+	private void recycleRandom() {
+		i_stack_train = new Stack<>();
+		i_stack_test = new Stack<>();
+		for (int i = 0; i < i_arr.length && i < trainSetSize + testSetSize; i++) {
+			if(i < trainSetSize)
+				i_stack_train.push(i_arr[i]);
+			else
+				i_stack_test.push(i_arr[i]);
+		}
+		j_stack_train = new Stack<>();
+		j_stack_test = new Stack<>();
+		for (int j = 0; j < j_arr.length && j < trainSetSize + testSetSize; j++) {
+			if(j < trainSetSize)
+				j_stack_train.push(j_arr[j]);
+			else
+				j_stack_test.push(j_arr[j]);
+		}
+		Collections.shuffle(i_stack_train);
+		Collections.shuffle(i_stack_test);
+		Collections.shuffle(j_stack_train);
+		Collections.shuffle(j_stack_test);
+	}
+	
+	
 	
 	static void shuffleArray(int[] ar){
 	    Random rnd = ThreadLocalRandom.current();
