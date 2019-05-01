@@ -11,13 +11,14 @@ public class Main2 {
 			Net network = new Net(size * size);
 			System.out.println("start training.");
 			for (int i = 0; i < numberOfIterations; i++) {
-				if((i+1) % printImageIteration == 0) {
+				if((i+1) % 10000 == 0) {
 					System.out.println("round " + (i+1));
 				}
 				double[] arr = p.getNextRandomWindowTrain(size, size);
 				network.train(arr);
 				
-				if(i % 1000000 == 0) {
+				// write the image to file
+				if(i % printImageIteration == 0) {
 					GrayScaleImage g = null;
 					for (int k = 0; k < 512; k += size) {
 						for (int j = 0; j < 512; j += size) {
@@ -35,11 +36,13 @@ public class Main2 {
 						}
 					}
 
-					g.writeGrayScale("images\\output" + (i/100000) +".ppm");
+					g.writeGrayScale("images\\output" + (i/printImageIteration) +".ppm");
 
 				}
 			}
 			System.out.println("finish training.");
+			
+			// write the image to file
 			GrayScaleImage g = null;
 			for (int i = 0; i < 512; i += size) {
 				for (int j = 0; j < 512; j += size) {
