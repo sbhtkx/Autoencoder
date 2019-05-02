@@ -1,6 +1,6 @@
 
 public class Main2 {
-	static final int size = 8;
+	static final int size = 16;
 	static final int SetSize = 1000 ;
 	static final int printImageIteration = SetSize * 10;
 	
