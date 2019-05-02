@@ -1,10 +1,9 @@
 
 public class Node {
-	final static double ALFA = 0.02;
+	static double ALFA = 0.2;
 	double output, error;
 	Node[] input;
 	double[] inputWeights;
-	double threshold;
 
 	/**
 	 * constructor for the nodes of the first layers, the input nodes
@@ -22,8 +21,14 @@ public class Node {
 		this.input = input;
 		inputWeights = new double[input.length];
 		for (int i = 0; i < input.length; i++) {
-			inputWeights[i] = 8*Math.random()-4;
+			inputWeights[i] = 2 * Math.random() - 1;
 		}
+	}
+
+	public Node(Node other, Node[] input) {
+		if (other.inputWeights != null)
+			inputWeights = other.inputWeights.clone();
+		this.input = input;
 	}
 
 	public void input(double in) {
@@ -43,7 +48,7 @@ public class Node {
 	}
 
 	public void calculateErrorAndUpdate(double err) {
-		if(err !=0&&error!=0)
+		if (err != 0 && error != 0)
 			try {
 				throw new Exception("wrong programming");
 			} catch (Exception e) {
@@ -52,10 +57,12 @@ public class Node {
 		error += err;
 		double myDelta = err * output * (1 - output);
 		for (int i = 0; i < inputWeights.length; i++) {
-			input[i].error += myDelta*inputWeights[i];
-			inputWeights[i] += ALFA*myDelta*input[i].output;
+			input[i].error += myDelta * inputWeights[i];
+
+			inputWeights[i] += ALFA * myDelta * input[i].output;
 		}
 		error = 0;
+
 	}
 
 }
