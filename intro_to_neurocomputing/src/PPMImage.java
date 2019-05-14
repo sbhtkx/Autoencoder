@@ -41,8 +41,8 @@ public class PPMImage {
 
 		maxColorVal = Integer.parseInt(br.readLine());
 
-		rgb = new int[width][height][3];
-		grayScale = new int[width][height];
+		rgb = new int[height][width][3];
+		grayScale = new int[height][width];
 
 		String st; 
 		int i = 0, row = 0, column = 0;
